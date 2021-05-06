@@ -1,1 +1,9 @@
-<p>musica works!</p>
+<h2>musica!</h2>
+
+<div *ngIf="(beat$ | async)">
+    <audio controls autoplay>
+        <source src="../../assets/samples/kick.wav" type="audio/wav">
+    </audio>
+</div>
+
+
