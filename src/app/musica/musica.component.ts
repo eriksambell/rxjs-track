@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
-import { delay, concatMap, tap, scan } from 'rxjs/internal/operators';
+import { interval, Observable, of } from 'rxjs';
+import { delay, concatMap, tap, scan, share } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-musica',
@@ -9,7 +9,6 @@ import { delay, concatMap, tap, scan } from 'rxjs/internal/operators';
 })
 export class MusicaComponent implements OnInit {
 
-  bassline: number[] = [];
   beat$: Observable<number[]> | undefined;
 
   constructor() { }
@@ -21,26 +20,19 @@ export class MusicaComponent implements OnInit {
      * An interval actually starts a new time source for every subscription, meaning it's unicast.
      */
 
-    // this.beat$ = interval(msPerBeat).pipe(
-    //   share(), // turn it multicast, so all subscribers to beat get called up the same time
-    // )
-
     this.beat$ = this.getBassline(this.bpmToMs(140)).pipe(tap(console.log));
   }
 
   private bpmToMs = (bpm: number) => (1000 * 60) / bpm;
 
   public getBassline(msPerBeat: number): Observable<number[]> {
-    for (let i = 0; i < 100; i++) this.bassline.push(i + 1);
-
-    return from(this.bassline).pipe(
+    return interval(msPerBeat).pipe(
+      share(), // turn it multicast, so all subscribers to beat get called up the same time
       concatMap((bass: number) => of(bass).pipe(delay(msPerBeat))),
-      scan((acc, value) => [...acc, value], [] as number[])
+      scan((acc, value) => [value], [] as number[]),
     );    
 
   }
-
-
 
 }
 
