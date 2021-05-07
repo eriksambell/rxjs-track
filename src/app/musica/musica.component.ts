@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { from, interval, Observable, of } from 'rxjs';
-import { delay, mergeMap, concatMap, share, concatAll, tap } from 'rxjs/internal/operators';
+import { Component, OnInit } from '@angular/core';
+import { from, Observable, of } from 'rxjs';
+import { delay, concatMap, tap, scan } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-musica',
@@ -9,8 +9,8 @@ import { delay, mergeMap, concatMap, share, concatAll, tap } from 'rxjs/internal
 })
 export class MusicaComponent implements OnInit {
 
-  bassline: string[] = [];
-  beat$: any;
+  bassline: number[] = [];
+  beat$: Observable<number[]> | undefined;
 
   constructor() { }
 
@@ -25,19 +25,19 @@ export class MusicaComponent implements OnInit {
     //   share(), // turn it multicast, so all subscribers to beat get called up the same time
     // )
 
-    this.beat$ = this.getBassline(this.bpmToMs(100));
+    this.beat$ = this.getBassline(this.bpmToMs(140)).pipe(tap(console.log));
   }
 
   private bpmToMs = (bpm: number) => (1000 * 60) / bpm;
 
-  public getBassline(msPerBeat: number): Observable<string> {
-    for (let i = 0; i < 100; i++) this.bassline.push('bass');
+  public getBassline(msPerBeat: number): Observable<number[]> {
+    for (let i = 0; i < 100; i++) this.bassline.push(i + 1);
 
-    return of(this.bassline).pipe(
-      concatAll(),
-      concatMap((bass: string) => of(bass).pipe(delay(msPerBeat))),
-      tap(hee => console.log(hee)),
-    );
+    return from(this.bassline).pipe(
+      concatMap((bass: number) => of(bass).pipe(delay(msPerBeat))),
+      scan((acc, value) => [...acc, value], [] as number[])
+    );    
+
   }
 
 
