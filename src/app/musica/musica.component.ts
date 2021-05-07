@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { interval, Observable, of } from 'rxjs';
-import { delay, concatMap, tap, scan, share } from 'rxjs/internal/operators';
+import { delay, concatMap, tap, scan, share, map } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-musica',
@@ -28,8 +28,8 @@ export class MusicaComponent implements OnInit {
   public getBassline(msPerBeat: number): Observable<number[]> {
     return interval(msPerBeat).pipe(
       share(), // turn it multicast, so all subscribers to beat get called up the same time
-      concatMap((bass: number) => of(bass).pipe(delay(msPerBeat))),
-      scan((acc, value) => [value], [] as number[]),
+      concatMap((kick: number) => of(kick).pipe(delay(msPerBeat))),
+      map((kick: number) => [kick])
     );    
 
   }
