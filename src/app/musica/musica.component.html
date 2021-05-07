@@ -1,7 +1,7 @@
 <h2>musica!</h2>
 
 <div *ngIf="(beat$ | async) as beats">
-    <audio controls autoplay preload *ngFor="beat of beats">
+    <audio controls autoplay preload *ngFor="let beat of beats">
         <source src="../../assets/samples/kick.wav" type="audio/wav">
     </audio>
 </div>
