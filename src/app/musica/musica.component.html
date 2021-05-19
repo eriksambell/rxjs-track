@@ -1,9 +1,23 @@
 <h2>musica!</h2>
 
-<div *ngIf="(beat$ | async) as beats">
-    <audio controls autoplay preload *ngFor="let beat of beats">
-        <source src="../../assets/samples/kick.wav" type="audio/wav">
-    </audio>
+<button *ngIf="!beat$" (click)="startMusica(140)">Play</button>
+<button *ngIf="beat$" (click)="stopMusica()">Stop</button>
+
+<div class="container">
+
+    <div *ngIf="(beat$ | async) as beats">
+        beat: {{ beats }}
+        <audio autoplay preload *ngFor="let beat of beats">
+            <source src="../../assets/samples/kick.wav" type="audio/wav">
+        </audio>
+    </div>
+
+    <div>
+        high hat
+    </div>
+
+    <div>
+        nog iets
+    </div>
+
 </div>
-
-
