@@ -1,6 +1,6 @@
 <h2>musica!</h2>
 
-<button *ngIf="!beat$" (click)="startMusica(140)">Play</button>
+<button *ngIf="!beat$" (click)="startMusica()">Play</button>
 <button *ngIf="beat$" (click)="stopMusica()">Stop</button>
 
 <div class="container">
@@ -12,12 +12,11 @@
         </audio>
     </div>
 
-    <div>
-        high hat
-    </div>
-
-    <div>
-        nog iets
+    <div *ngIf="(offbeat$ | async) as offbeats">
+        offbeat: {{ offbeats }}
+        <audio autoplay preload *ngFor="let offbeat of offbeats">
+            <source src="../../assets/samples/hh-closed.wav" type="audio/wav">
+        </audio>
     </div>
 
 </div>
