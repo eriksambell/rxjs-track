@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { interval, Observable, of } from 'rxjs';
 import { delay, concatMap, tap, scan, share, map, switchMap } from 'rxjs/internal/operators';
 
@@ -19,7 +19,8 @@ export class MusicaComponent implements OnInit {
      * one tricky thing is dealing with unicast vs multicast observables.
      * An interval actually starts a new time source for every subscription, meaning it's unicast.
      */
-    this.bpmToMs = this.getBpmToMs(140);
+    this.bpmToMs = this.getBpmToMs(120);
+    this.startMusica();
   }
 
   public startMusica(): void {
