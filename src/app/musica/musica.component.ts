@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { interval, Observable, of, Subject } from 'rxjs';
 import { delay, concatMap, share, map, filter, takeUntil } from 'rxjs/internal/operators';
 
@@ -15,7 +15,6 @@ export class MusicaComponent implements OnInit {
   bpmToMs = 0;
 
   destroy$ = new Subject<void>();
-  toggleAudio: boolean | undefined;
 
   ngOnInit(): void {
     /**
@@ -28,9 +27,9 @@ export class MusicaComponent implements OnInit {
   }
 
   public startMusica(): void {
-    this.toggleAudio = true;
     this.beat$ = this.getBassline(this.bpmToMs).pipe(
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      share() // turn it multicast, so all subscribers to beat get called up the same time
     );
     this.halfbeat$ = this.beat$.pipe(
       filter((val, index) => index % 2 === 0),
@@ -43,7 +42,6 @@ export class MusicaComponent implements OnInit {
 
   public stopMusica(): void {
     this.destroy$.next();
-    this.toggleAudio = false;
   }
 
   private getBpmToMs = (bpm: number) => (1000 * 60) / bpm;
