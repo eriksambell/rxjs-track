@@ -33,6 +33,7 @@ export class MusicaComponent implements OnInit {
     );
     this.halfbeat$ = this.beat$.pipe(
       filter((val, index) => index % 2 === 0),
+      // delay(this.bpmToMs / 2), // add half off beat
       map((halfbeat: number[]) => [halfbeat[0] / 2])
     )
     this.offbeat$ = this.beat$.pipe(
