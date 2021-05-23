@@ -13,6 +13,7 @@ export class MusicaComponent implements OnInit {
   halfbeat$: Observable<number[]> | undefined;
   offbeat$: Observable<number[]> | undefined;
   bpmToMs = 0;
+  volume = 1.0;
 
   destroy$ = new Subject<void>();
 
@@ -39,6 +40,10 @@ export class MusicaComponent implements OnInit {
     this.offbeat$ = this.beat$.pipe(
       delay(this.bpmToMs / 2)
     )
+
+    this.beat$.subscribe(() => this.createAudio('kick'));
+    this.halfbeat$.subscribe(() => this.createAudio('hh-closed'));
+    this.offbeat$.subscribe(() => this.createAudio('TechDHitB-21'));
   }
 
   public stopMusica(): void {
@@ -52,7 +57,18 @@ export class MusicaComponent implements OnInit {
       share(), // turn it multicast, so all subscribers to beat get called up the same time
       concatMap((kick: number) => of(kick).pipe(delay(msPerBeat))),
       map((kick: number) => [kick])
-    );    
+    );
+  }
+
+  private createAudio(fileName: string) {
+    let audio = new Audio();
+    audio.src = `../../assets/samples/${fileName}.wav`
+    audio.volume = this.volume;
+    audio.play();
+  }
+
+  public setVolume(volume: string) {
+    this.volume = Number(volume);
   }
 
 }

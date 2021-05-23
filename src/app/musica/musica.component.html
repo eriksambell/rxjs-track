@@ -5,25 +5,11 @@
 
 <div class="container">
 
-    <div *ngIf="(beat$ | async) as beats">
-        beat: {{ beats }}
-        <audio autoplay preload *ngFor="let beat of beats">
-            <source src="../../assets/samples/kick.wav" type="audio/wav">
-        </audio>
-    </div>
-
-    <div *ngIf="(offbeat$ | async) as offbeats">
-        offbeat: {{ offbeats }}
-        <audio autoplay preload *ngFor="let offbeat of offbeats">
-            <source src="../../assets/samples/hh-closed.wav" type="audio/wav">
-        </audio>
-    </div>
-
-    <div *ngIf="(halfbeat$ | async) as halfbeats">
-        offbeat: {{ halfbeats }}
-        <audio autoplay preload *ngFor="let halfbeat of halfbeats">
-            <source src="../../assets/samples/TechDHitB-21.wav" type="audio/wav">
-        </audio>
-    </div>
+    <form>
+        <label for="volume">Volume</label>
+        <input #input type="string" id="volume" name="volume">
+    </form>
+    
+    <button (click)="setVolume(input.value)">set volume</button>
 
 </div>
