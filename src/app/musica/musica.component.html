@@ -7,9 +7,7 @@
 
     <form>
         <label for="volume">Volume</label>
-        <input #input type="string" id="volume" name="volume">
+        <input #input type="range" id="volume" name="volume" min="0" max="100" (input)="setVolume(input.value)">
     </form>
-    
-    <button (click)="setVolume(input.value)">set volume</button>
 
 </div>

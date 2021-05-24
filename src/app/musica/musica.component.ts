@@ -67,7 +67,7 @@ export class MusicaComponent implements OnInit {
   }
 
   public setVolume(volume: string) {
-    this.volume = Number(volume);
+    this.volume = Number(volume) / 100;
   }
 
 }
