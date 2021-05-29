@@ -10,8 +10,9 @@ import { delay, concatMap, share, map, filter, takeUntil, tap } from 'rxjs/inter
 export class MusicaComponent implements OnInit {
 
   beat$: Observable<number> | undefined;
-  halfbeat$: Observable<number> | undefined;
-  offbeat$: Observable<number> | undefined;
+  halfBeat$: Observable<number> | undefined;
+  offBeat$: Observable<number> | undefined;
+  
   bpmToMs = 0;
   volume = 1.0;
 
@@ -32,18 +33,18 @@ export class MusicaComponent implements OnInit {
       takeUntil(this.destroy$),
       share() // turn it multicast, so all subscribers to beat get called up the same time
     );
-    this.halfbeat$ = this.beat$.pipe(
+    this.halfBeat$ = this.beat$.pipe(
       filter((val, index) => index % 2 === 0),
       // delay(this.bpmToMs / 2), // add half off beat
       map((halfbeat: number, index: number) => index)
     )
-    this.offbeat$ = this.beat$.pipe(
+    this.offBeat$ = this.beat$.pipe(
       delay(this.bpmToMs / 2)
     )
 
     this.beat$.subscribe(() => this.createAudio('kick'));
-    this.halfbeat$.subscribe(() => this.createAudio('hh-closed'));
-    this.offbeat$.subscribe(() => this.createAudio('TechDHitB-21'));
+    this.halfBeat$.subscribe(() => this.createAudio('hh-closed'));
+    this.offBeat$.subscribe(() => this.createAudio('TechDHitB-21'));
   }
 
   public stopMusica(): void {
@@ -54,7 +55,6 @@ export class MusicaComponent implements OnInit {
 
   private getBassline(msPerBeat: number): Observable<number> {
     return interval(msPerBeat).pipe(
-      share(), // turn it multicast, so all subscribers to beat get called up the same time
       concatMap((kick: number) => of(kick).pipe(delay(msPerBeat)))
     );
   }
