@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { interval, Observable, of, Subject } from 'rxjs';
-import { delay, concatMap, share, map, filter, takeUntil, tap } from 'rxjs/internal/operators';
+import { delay, concatMap, share, map, filter, takeUntil } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-musica',
@@ -39,10 +39,10 @@ export class MusicaComponent implements OnInit {
     );
 
     this.halfBeat$ = this.beat$.pipe(
-      filter((val, index) => index % 4 === 0),
-      // delay(this.bpmToMs / 2), // add half off beat
+      filter((val, index) => index % 2 === 0),
       map((halfbeat: number, index: number) => index)
     )
+
     this.offBeat$ = this.beat$.pipe(
       delay(this.bpmToMs / 2)
     )
@@ -65,7 +65,6 @@ export class MusicaComponent implements OnInit {
   }
 
   private createAudio(fileName: string, volume: number) {
-    // console.log(fileName, volume);
     let audio = new Audio();
     audio.src = `../../assets/samples/${fileName}.wav`
     audio.volume = volume / 100;
@@ -74,7 +73,6 @@ export class MusicaComponent implements OnInit {
 
   public setVolume(volume: string, part: 'beat' | 'half' | 'off') {
     this.volume[part] = Number(volume);
-    console.log(this.volume.beat);
   }
 
 }
