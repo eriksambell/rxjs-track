@@ -14,7 +14,11 @@ export class MusicaComponent implements OnInit {
   offBeat$: Observable<number> | undefined;
   
   bpmToMs = 0;
-  volume = 1.0;
+  volume = {
+    beat: 50,
+    half: 50,
+    off: 50
+  }
 
   destroy$ = new Subject<void>();
 
@@ -25,16 +29,17 @@ export class MusicaComponent implements OnInit {
      * An interval actually starts a new time source for every subscription, meaning it's unicast.
      */
     this.bpmToMs = this.getBpmToMs(120);
-    this.startMusica();
   }
 
   public startMusica(): void {
+
     this.beat$ = this.getBassline(this.bpmToMs).pipe(
       takeUntil(this.destroy$),
       share() // turn it multicast, so all subscribers to beat get called up the same time
     );
+
     this.halfBeat$ = this.beat$.pipe(
-      filter((val, index) => index % 2 === 0),
+      filter((val, index) => index % 4 === 0),
       // delay(this.bpmToMs / 2), // add half off beat
       map((halfbeat: number, index: number) => index)
     )
@@ -42,9 +47,9 @@ export class MusicaComponent implements OnInit {
       delay(this.bpmToMs / 2)
     )
 
-    this.beat$.subscribe(() => this.createAudio('kick'));
-    this.halfBeat$.subscribe(() => this.createAudio('hh-closed'));
-    this.offBeat$.subscribe(() => this.createAudio('TechDHitB-21'));
+    this.beat$.subscribe(() => this.createAudio('kick', this.volume.beat));
+    this.halfBeat$.subscribe(() => this.createAudio('hh-closed', this.volume.half));
+    this.offBeat$.subscribe(() => this.createAudio('TechDHitB-21', this.volume.off));
   }
 
   public stopMusica(): void {
@@ -59,15 +64,17 @@ export class MusicaComponent implements OnInit {
     );
   }
 
-  private createAudio(fileName: string) {
+  private createAudio(fileName: string, volume: number) {
+    // console.log(fileName, volume);
     let audio = new Audio();
     audio.src = `../../assets/samples/${fileName}.wav`
-    audio.volume = this.volume;
+    audio.volume = volume / 100;
     audio.play();
   }
 
-  public setVolume(volume: string) {
-    this.volume = Number(volume) / 100;
+  public setVolume(volume: string, part: 'beat' | 'half' | 'off') {
+    this.volume[part] = Number(volume);
+    console.log(this.volume.beat);
   }
 
 }
