@@ -10,11 +10,14 @@
         <label for="beat">Beat</label>
         <input #beat type="range" id="beat" name="beat" min="0" max="100" (input)="setVolume(beat.value, 'beat')">
 
-        <label for="half">Half beat</label>
-        <input #half type="range" id="half" name="half" min="0" max="100" (input)="setVolume(half.value, 'half')">
+        <label for="claps">Claps</label>
+        <input #claps type="range" id="claps" name="claps" min="0" max="100" (input)="setVolume(claps.value, 'claps')">
 
-        <label for="off">Off beat</label>
-        <input #off type="range" id="off" name="off" min="0" max="100" (input)="setVolume(off.value, 'off')">
+        <label for="melody">Melody</label>
+        <input #melody type="range" id="melody" name="melody" min="0" max="100" (input)="setVolume(melody.value, 'melody')">
+
+        <label for="hihat">Hi-hat</label>
+        <input #hihat type="range" id="hihat" name="hihat" min="0" max="100" (input)="setVolume(hihat.value, 'hihat')">
     
     </form>
 

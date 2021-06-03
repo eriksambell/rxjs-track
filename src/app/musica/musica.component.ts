@@ -10,14 +10,16 @@ import { delay, concatMap, share, map, filter, takeUntil } from 'rxjs/internal/o
 export class MusicaComponent implements OnInit {
 
   beat$: Observable<number> | undefined;
-  halfBeat$: Observable<number> | undefined;
-  offBeat$: Observable<number> | undefined;
+  claps$: Observable<number> | undefined;
+  melody$: Observable<number> | undefined;
+  hiHats$: Observable<number> | undefined;
   
   bpmToMs = 0;
   volume = {
-    beat: 50,
-    half: 50,
-    off: 50
+    beat: 80,
+    claps: 50,
+    melody: 50,
+    hihat: 50
   }
 
   destroy$ = new Subject<void>();
@@ -28,7 +30,8 @@ export class MusicaComponent implements OnInit {
      * one tricky thing is dealing with unicast vs multicast observables.
      * An interval actually starts a new time source for every subscription, meaning it's unicast.
      */
-    this.bpmToMs = this.getBpmToMs(120);
+    this.bpmToMs = this.getBpmToMs(125);
+    this.startMusica();
   }
 
   public startMusica(): void {
@@ -38,18 +41,24 @@ export class MusicaComponent implements OnInit {
       share() // turn it multicast, so all subscribers to beat get called up the same time
     );
 
-    this.halfBeat$ = this.beat$.pipe(
+    this.claps$ = this.beat$.pipe(
       filter((val, index) => index % 2 === 0),
       map((halfbeat: number, index: number) => index)
     )
 
-    this.offBeat$ = this.beat$.pipe(
+    this.melody$ = this.beat$.pipe(
+      filter((val, index) => index % 16 === 0),
+    )
+
+    this.hiHats$ = this.beat$.pipe(
       delay(this.bpmToMs / 2)
     )
 
+
     this.beat$.subscribe(() => this.createAudio('kick', this.volume.beat));
-    this.halfBeat$.subscribe(() => this.createAudio('hh-closed', this.volume.half));
-    this.offBeat$.subscribe(() => this.createAudio('TechDHitB-21', this.volume.off));
+    this.claps$.subscribe(() => this.createAudio('hh-closed', this.volume.claps));
+    this.melody$.subscribe(() => this.createAudio('big-room-bass-line_125bpm_D', this.volume.melody))
+    this.hiHats$.subscribe(() => this.createAudio('hh-open', this.volume.hihat));
   }
 
   public stopMusica(): void {
@@ -71,7 +80,7 @@ export class MusicaComponent implements OnInit {
     audio.play();
   }
 
-  public setVolume(volume: string, part: 'beat' | 'half' | 'off') {
+  public setVolume(volume: string, part: 'beat' | 'claps' | 'melody' | 'hihat') {
     this.volume[part] = Number(volume);
   }
 
