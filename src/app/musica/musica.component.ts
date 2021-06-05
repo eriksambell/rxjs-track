@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { interval, Observable, of, Subject } from 'rxjs';
 import { delay, concatMap, share, map, filter, takeUntil } from 'rxjs/internal/operators';
 
+type MusicLabel = 'beat' | 'claps' | 'melody' | 'hiHat';
+
 @Component({
   selector: 'app-musica',
   templateUrl: './musica.component.html',
@@ -15,11 +17,24 @@ export class MusicaComponent implements OnInit {
   hiHats$: Observable<number> | undefined;
   
   bpmToMs = 0;
-  volume = {
-    beat: 80,
-    claps: 50,
-    melody: 50,
-    hihat: 50
+
+  music = {
+    beat: {
+      volume: 80,
+      sample: 'kick.wav'
+    },
+    claps: {
+      volume: 25,
+      sample: 'hh-closed.wav'
+    },
+    hiHat: {
+      volume: 25,
+      sample: 'hh-open.wav'
+    },
+    melody: {
+      volume: 25,
+      sample: 'big-room-bass-line_125bpm_D.wav'
+    },
   }
 
   destroy$ = new Subject<void>();
@@ -55,10 +70,10 @@ export class MusicaComponent implements OnInit {
     )
 
 
-    this.beat$.subscribe(() => this.createAudio('kick', this.volume.beat));
-    this.claps$.subscribe(() => this.createAudio('hh-closed', this.volume.claps));
-    this.melody$.subscribe(() => this.createAudio('big-room-bass-line_125bpm_D', this.volume.melody))
-    this.hiHats$.subscribe(() => this.createAudio('hh-open', this.volume.hihat));
+    this.beat$.subscribe(() => this.createAudio('beat'));
+    this.claps$.subscribe(() => this.createAudio('claps'));
+    this.hiHats$.subscribe(() => this.createAudio('hiHat'));
+    this.melody$.subscribe(() => this.createAudio('melody'));
   }
 
   public stopMusica(): void {
@@ -73,15 +88,15 @@ export class MusicaComponent implements OnInit {
     );
   }
 
-  private createAudio(fileName: string, volume: number) {
+  private createAudio(label: MusicLabel) {
     let audio = new Audio();
-    audio.src = `../../assets/samples/${fileName}.wav`
-    audio.volume = volume / 100;
-    audio.play();
+    audio.src = `../../assets/samples/${this.music[label].sample}`
+    audio.volume = this.music[label].volume / 100;
+    audio.play()
   }
 
-  public setVolume(volume: string, part: 'beat' | 'claps' | 'melody' | 'hihat') {
-    this.volume[part] = Number(volume);
+  public setVolume(volume: string, label: MusicLabel) {
+    this.music[label].volume = Number(volume);
   }
 
 }
