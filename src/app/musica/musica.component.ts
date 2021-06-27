@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { interval, Observable, of, Subject } from 'rxjs';
-import { delay, concatMap, share, map, filter, takeUntil } from 'rxjs/internal/operators';
+import { interval, Observable, Subject } from 'rxjs';
+import { delay, share, filter } from 'rxjs/internal/operators';
 
 type Sample = 'beat' | 'claps' | 'melody' | 'hiHat';
 
@@ -11,77 +11,50 @@ type Sample = 'beat' | 'claps' | 'melody' | 'hiHat';
 })
 export class MusicaComponent implements OnInit {
 
-  beat$: Observable<number> | undefined;
-  claps$: Observable<number> | undefined;
-  melody$: Observable<number> | undefined;
-  hiHats$: Observable<number> | undefined;
-  
-  bpmToMs = 0;
-
   music = {
-    beat: {volume: 80, sample: 'kick.wav'},
-    claps: {volume: 25, sample: 'hh-closed.wav'},
-    hiHat: {volume: 25, sample: 'hh-open.wav'},
-    melody: {volume: 40, sample: 'big-room-bass-line_125bpm_D.wav'},
+    beat: { volume: 80, sample: 'kick.wav' },
+    claps: { volume: 25, sample: 'hh-closed.wav' },
+    hiHat: { volume: 25, sample: 'hh-open.wav' },
+    melody: { volume: 40, sample: 'big-room-bass-line_125bpm_D.wav' },
   }
 
   destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    /**
-     * one tricky thing is dealing with unicast vs multicast observables.
-     * An interval actually starts a new time source for every subscription, meaning it's unicast.
-     */
-    this.bpmToMs = this.getBpmToMs(125);
-    setTimeout(() => this.startMusica(), 500);
+    setTimeout(() => this.startMusic(), 1000); // wait a second to prevent a messy start
   }
 
-  public startMusica(): void {
+/**
+ * One tricky thing is dealing with unicast vs multicast observables.
+ * An interval actually starts a new time source for every subscription, meaning it's unicast.
+ * So we use share() to turn it multicast, so all subscribers to the beat get called up the same time
+ */
+  public startMusic(): void {
+    // convert bpm to milliseconds per beat
+    const msPerBeat = this.bpmToMs(125);
 
-    this.beat$ = this.getBassline(this.bpmToMs).pipe(
-      takeUntil(this.destroy$),
-      share() // turn it multicast, so all subscribers to beat get called up the same time
-    );
+    // create observables
+    const beat$: Observable<number> = interval(msPerBeat).pipe(share());
+    const claps$: Observable<number> = beat$.pipe(filter((value, index) => index % 2 === 0));
+    const hiHats$: Observable<number> = beat$.pipe(delay(msPerBeat / 2));
+    const melody$: Observable<number> = beat$.pipe(filter((value, index) => index % 16 === 0));
 
-    this.claps$ = this.beat$.pipe(
-      filter((val, index) => index % 2 === 0),
-    )
-
-    this.hiHats$ = this.beat$.pipe(
-      delay(this.bpmToMs / 2)
-    )
-
-    this.melody$ = this.beat$.pipe(
-      filter((val, index) => index % 16 === 0),
-    )
-
-    this.beat$.subscribe(() => this.createAudio('beat'));
-    this.claps$.subscribe(() => this.createAudio('claps'));
-    this.hiHats$.subscribe(() => this.createAudio('hiHat'));
-    this.melody$.subscribe(() => this.createAudio('melody'));
+    // subscribe to observables to create audio
+    beat$.subscribe(() => this.createAudio('beat'));
+    claps$.subscribe(() => this.createAudio('claps'));
+    hiHats$.subscribe(() => this.createAudio('hiHat'));
+    melody$.subscribe(() => this.createAudio('melody'));
   }
 
-  public stopMusica(): void {
+  public stopMusic(): void {
     this.destroy$.next();
   }
 
-  public setVolume(volume: string, label: Sample) {
+  public setVolume(volume: string, label: Sample): void {
     this.music[label].volume = Number(volume);
   }
 
-  private getBpmToMs = (bpm: number) => (1000 * 60) / bpm;
-
-  /**
-   * concatMap does not subscribe to the next observable until the previous completes, 
-   * the value from the source delayed by xx ms will be emitted first
-   * @param msPerBeat 
-   * @returns  an observable every x ms
-   */
-  private getBassline(msPerBeat: number): Observable<number> {
-    return interval(msPerBeat).pipe(
-      concatMap((beat: number) => of(beat))
-    );
-  }
+  private bpmToMs = (bpm: number): number => (1000 * 60) / bpm;
 
   private createAudio(label: Sample) {
     let audio = new Audio();
