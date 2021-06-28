@@ -24,11 +24,10 @@ export class MusicaComponent implements OnInit {
     setTimeout(() => this.startMusic(), 1000); // wait a second to prevent a messy start
   }
 
-/**
- * One tricky thing is dealing with unicast vs multicast observables.
- * An interval actually starts a new time source for every subscription, meaning it's unicast.
- * So we use share() to turn it multicast, so all subscribers to the beat get called up the same time
- */
+  /**
+   * The beat is created from an interval, which actually starts a new time source for every subscription, meaning it's unicast.
+   * So we use share() to turn it multicast, so all subscribers to the beat get called up the same time
+   */
   public startMusic(): void {
     // convert bpm to milliseconds per beat
     const msPerBeat = this.bpmToMs(125);
@@ -37,13 +36,13 @@ export class MusicaComponent implements OnInit {
     const beat$: Observable<number> = interval(msPerBeat).pipe(
       takeUntil(this.destroy$),
       share()
-      );
+    );
 
     const claps$: Observable<number> = beat$.pipe(filter((value, index) => index % 2 === 0));
     const hiHats$: Observable<number> = beat$.pipe(delay(msPerBeat / 2));
     const melody$: Observable<number> = beat$.pipe(filter((value, index) => index % 16 === 0));
 
-    // subscribe to observables to create audio
+    // subscribe to observables and create audio
     beat$.subscribe(() => this.createAudio('beat'));
     claps$.subscribe(() => this.createAudio('claps'));
     hiHats$.subscribe(() => this.createAudio('hiHat'));
