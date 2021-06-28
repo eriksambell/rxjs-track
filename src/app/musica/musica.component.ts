@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { interval, Observable, Subject } from 'rxjs';
-import { delay, share, filter } from 'rxjs/internal/operators';
+import { delay, share, filter, takeUntil } from 'rxjs/internal/operators';
 
 type Sample = 'beat' | 'claps' | 'melody' | 'hiHat';
 
@@ -34,7 +34,11 @@ export class MusicaComponent implements OnInit {
     const msPerBeat = this.bpmToMs(125);
 
     // create observables
-    const beat$: Observable<number> = interval(msPerBeat).pipe(share());
+    const beat$: Observable<number> = interval(msPerBeat).pipe(
+      takeUntil(this.destroy$),
+      share()
+      );
+
     const claps$: Observable<number> = beat$.pipe(filter((value, index) => index % 2 === 0));
     const hiHats$: Observable<number> = beat$.pipe(delay(msPerBeat / 2));
     const melody$: Observable<number> = beat$.pipe(filter((value, index) => index % 16 === 0));
