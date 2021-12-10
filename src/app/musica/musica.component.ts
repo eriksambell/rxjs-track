@@ -51,8 +51,8 @@ export class MusicaComponent {
 
   private bpmToMs = (bpm: number): number => (1000 * 60) / bpm;
 
-  private createAudio(label: Sample) {
-    let audio = new Audio();
+  private createAudio(label: Sample): void {
+    const audio = new Audio();
     audio.src = `assets/samples/${this.music[label].sample}`;
     audio.volume = this.music[label].volume / 100;
     audio.play();
