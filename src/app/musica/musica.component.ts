@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { interval, Observable, Subject } from 'rxjs';
 import { delay, share, filter, takeUntil } from 'rxjs/internal/operators';
 
@@ -9,7 +9,7 @@ type Sample = 'beat' | 'claps' | 'melody' | 'hiHat';
   templateUrl: './musica.component.html',
   styleUrls: ['./musica.component.scss']
 })
-export class MusicaComponent implements OnInit {
+export class MusicaComponent {
 
   music = {
     beat: { volume: 80, sample: 'kick.wav' },
@@ -19,10 +19,6 @@ export class MusicaComponent implements OnInit {
   }
 
   destroy$ = new Subject<void>();
-
-  ngOnInit(): void {
-    setTimeout(() => this.startMusic(), 1000); // wait a second to prevent a messy start
-  }
 
   /**
    * The beat is created from an interval, which actually starts a new time source for every subscription, meaning it's unicast.
@@ -61,7 +57,7 @@ export class MusicaComponent implements OnInit {
 
   private createAudio(label: Sample) {
     let audio = new Audio();
-    audio.src = `../../assets/samples/${this.music[label].sample}`
+    audio.src = `assets/samples/${this.music[label].sample}`
     audio.volume = this.music[label].volume / 100;
     audio.play()
   }
